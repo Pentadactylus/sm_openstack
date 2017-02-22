@@ -4,42 +4,50 @@
 
 DISCO stands for DIStributed COmputing. It provides the user with the ability to deploy a distributed computing cluster in as short a time as imaginable. Not only will it setup the whole virtual computing cluster but it will also install the desired distributed computing frameworks on it. Then, it will guide you through the entire lifecycle of the cluster until its disposal, which is also maintained by DISCO. You will be amazed by how much work DISCO is taking care of - and how intuitively it handles your requests.
 
-## Running DISCO
+## Running DISCO backend
 
-In the following section, I will explain how to configure and use the Service Manager (SM; part of the Hurtle framework), the core part of DISCO.
+In the following section, I will explain how to configure and use the server part of DISCO, taking care of the user requests and forwarding the required commands to the cloud computing software.
 
 ### Overview over the system
 
-DISCO is an orchestration system to create distributed computing clusters. How this is done you ask? The answer is over Heat templates. These templates will determine the lifecycle of computing clusters, probably installed on OpenStack.
+DISCO is an orchestration system to create distributed computing clusters. How this is done you ask? The answer is: over Heat templates. These templates will determine the lifecycle of computing clusters, installed on the cloud computing managing software OpenStack.
 
-In the original Hurtle release, you needed an OpenShift (or similar) system setup in order to execute a Service Orchestrator (SO). With DISCO, you don't need the SO anymore - everything will be automatically deployed as a distributed computing cluster.
+Provisioning a cluster is done in a few easy steps:
 
-Provisioning a cluster is done in two steps:
-
-1. deploying DISCO on a dedicated machine which can be done on the same OpenStack system as the cluster is to be hosted on or on a different one - it can even be deployed on a dedicated physical computer or on localhost (for testing)
-2. issuing the creation request to DISCO
+1. deploying the DISCO backend on a dedicated machine which can be done on the same OpenStack system as the cluster is to be hosted on or on a different one - it can even be deployed on a dedicated physical computer or on localhost (for testing)
+2. deploying the DISCO dashboard which presents an easy-to-use web interface to you, the end user, for creating new virtual clusters and handling its usage over its entire lifetime.
 
 For the detailed configuration and example commands, please refer to the following section.
 
-### Configuration (Setting up DISCO)
+### Configuration (Setting up DISCO backend)
 
-The most basic need is an OpenStack installation with access to the necessary resources for the clusters. Also, you need to expose the OpenStack endpoints to DISCO. These are actually just the regular endpoints so no complication in this part. You can find them on Horizon (OpenStack's web interface) -> Compute -> Access & Security -> API Access. 
+The most basic requirement is an OpenStack installation with access to the necessary resources for the clusters. Also, you need to expose the OpenStack endpoints to DISCO. These are actually just the regular endpoints so no complication in this part. You can find them on Horizon (OpenStack's web interface) -> Compute -> Access & Security -> API Access.
 
-1. The dependencies need to be installed first which include some python tools.
+But before we get to that point, let's install DISCO backend. This short guide will give you the relevant commands for this.
+
+1. A few prerequisites have to be present before DISCO can run. Let's install those:
     
     ```
-    sudo apt-get install -y git python-pip python-dev python-flask libffi-dev libssl-dev python-novaclient python-flask
+    sudo apt-get update
+    sudo apt-get install -y git python-pip libffi-dev libcurl4-openssl-dev python-dev
     ```
 
-2. Now, the SDK can be installed.
+2. Now, an SDK has to be installed which provides DISCO with some important commands. In order to install this SDK, two Python packages have to be upgraded:
 
     ```
+    sudo pip install requests --upgrade
+    sudo pip install setuptools --upgrade
+    ```
+    
+3. Let's install the SDK now:
+    
+    ```
     git clone https://github.com/icclab/hurtle_cc_sdk.git
     cd hurtle_cc_sdk
     sudo python setup.py install
     ```
-    
-3. At this point, DISCO can be installed.
+    
+4. At this point, DISCO can be installed.
 
     ```
     git clone https://github.com/icclab/disco.git
@@ -50,8 +58,7 @@ The most basic need is an OpenStack installation with access to the necessary re
 4. Before you can start DISCO, you need to make a couple of changes in the sm.cfg configuration file within the etc subdirectory of DISCO. These values are:
     - manifest: the path to the file service_manifest.json which is in the sm/managers/data subfolder of DISCO but could be at any other location.
     - design_uri: Keystone's public endpoint in OpenStack.
-    - service_params: the path of the service_params.json file; located within the etc subfolder of DISCO.
-    - root_folder: the path of the data template folder required for heat template creation; usually under sm/managers/data
+    - framework_directory: the path of the directory under ./sm/managers/data which is containing all the components that can be installed through DISCO.
 
 5. As soon as these changes are made, you can start DISCO with the command
 
@@ -61,11 +68,9 @@ The most basic need is an OpenStack installation with access to the necessary re
     
     At this point, DISCO is running and you can issue the HTTP commands to create a cluster.
     
-6. If you are running into problems, you might have to upgrade one package or another, such as requests or pbr. (which was the case for me)
-    
 ### Creating a cluster
 
-In order to have a distributed computing cluster setup, you will need to issue a couple of HTTP commands. So let's have a look at those. Additionally, you will need a SSH public key registered within OpenStack which you can login with later on the cluster's master.
+In order to have a distributed computing cluster set up, you will need to issue a couple of HTTP commands. So let's have a look at those. Additionally, you will need a SSH public key registered within OpenStack which you can login with later on the cluster's master.
 
 1. You can list all the available services of a specific DISCO SM with the command
 
@@ -73,26 +78,25 @@ In order to have a distributed computing cluster setup, you will need to issue a
     curl -v -X GET http://xxx.xxx.xxx.xxx:8888/-/ -H 'Accept: text/occi' -H "X-User-Name: $OS_USERNAME" -H "X-Password: $OS_PASSWORD" -H "X-Tenant-Name: $OS_TENANT_NAME"
     ```
     
-    The three variables $OS_USERNAME, $OS_PASSWORD and $OS_TENANT_NAME are the same that you can download within the openrc.sh file from OpenStack.
+    The three variables $OS_USERNAME, $OS_PASSWORD and $OS_TENANT_NAME are the same that you can download within the openrc.sh file from OpenStack. How that is done? Just go back to Horizon -> Compute -> Access & Security -> API Access. Here, you can download this access file.
     
-    This will list all the registered services with the possible parametrs. For DISCO, this is the service haas.
+    But now back to the command from before: it will list all the registered services with the possible parametrs. For DISCO, this is the service haas.
     
 2. With the following command, a cluster can be created:
 
    ```
-   curl -v -X POST http://xxx.xxx.xxx.xxx:8888/haas/ -H 'Category: haas; scheme="http://schemas.cloudcomplab.ch/occi/sm#"; class="kind";' -H "X-User-Name: $OS_USERNAME" -H "X-Tenant-Name: $OS_TENANT_NAME" -H "X-Password: $OS_PASSWORD" -H "X-Region-Name: $OS_REGION_NAME" -H 'content-type: text/occi' -H 'X-OCCI-Attribute: icclab.haas.master.sshkeyname="<your SSH public key name>"'
+   curl -v -X POST http://127.0.0.1:8888/disco/ -H 'Category: disco; scheme="http://schemas.cloudcomplab.ch/occi/sm#"; class="kind";' -H 'Content-type: text/occi' -H 'X-Tenant-Name: $OS_TENANT_NAME' -H 'X-Region-Name: $OS_REGION_NAME' -H 'X-User-Name: $OS_USERNAME' -H 'X-Password: $OS_PASSWORD' -H 'X-OCCI-Attribute: icclab.disco.components.heat.networkname="<name of the network to be created for the cluster>",icclab.disco.components.heat.externalnetworkname="<name of the external network>",icclab.disco.components.heat.masterimage="<ID of master image>",icclab.disco.components.heat.slaveimage="<ID of slave image>",icclab.disco.components.heat.masterflavor="<ID of master's flavor>",icclab.disco.components.heat.slaveflavor="<ID of slave's flavor>",icclab.disco.components.heat.slavecount="<amount of slaves to be deployed>",icclab.disco.hurtle.username="$OS_USERNAME",icclab.disco.hurtle.password="$OS_PASSWORD",icclab.disco.hurtle.region="$OS_REGION_NAME",icclab.disco.dependencies.inject="<components to deploy as a Python dictionary>"' -H "X-Auth-Token: $TOKEN"
    ```
 
-   Two additional headers are included in this command: one for the region where the cluster should be deployed and another for the parameters for the cluster setup. The command above contains the minimum of the required parameters which will setup a cluster.
-   
-   You can see one parameter which is absolutely necessary for each cluster: icclab.haas.master.sshkeyname tells DISCO which (already registered) SSH keyname should be inserted within the new cluster's master node.
+   There is one very long header, X-OCCI-Attribute, which contains all the parameters for the cluster setup. These are the following:
+   <todo>
    
    A successful deployment will be acknowledged with an 'OK' and a UUID which identifies the created cluster within DISCO. It is within the location field of the response. Remember this because it is the address which you will send the following requests to.
 
-3. Though if you haven't taken note of the UUID, you can still retrieve it with the command
+3. However, if you haven't taken note of the UUID, you can still retrieve it with the command
 
    ```
-   curl -v -X GET http://xxx.xxx.xxx.xxx:8888/haas/ -H 'Accept: text/occi' -H "X-User-Name: $OS_USERNAME" -H "X-Tenant-Name: $OS_TENANT_NAME" -H "X-Password: $OS_PASSWORD"
+   curl -v -X GET http://xxx.xxx.xxx.xxx:8888/disco/ -H 'Accept: text/occi' -H "X-User-Name: $OS_USERNAME" -H "X-Tenant-Name: $OS_TENANT_NAME" -H "X-Password: $OS_PASSWORD"
    ```
    
    This will list all clusters which have been deployed for the given username / tenant on the given DISCO instance.
@@ -100,21 +104,26 @@ In order to have a distributed computing cluster setup, you will need to issue a
 4. If you want to know the IP of your newly created cluster, issue the following HTTP command:
 
    ```
-   curl -v -X GET http://xxx.xxx.xxx.xxx:8888/haas/UUID -H 'Accept: text/occi' -H "X-Tenant-Name: $OS_TENANT_NAME" -H "X-User-Name: $OS_USERNAME" -H "X-Password: $OS_PASSWORD" -H "X-Region-Name: $OS_REGION_NAME"
+   curl -v -X GET http://xxx.xxx.xxx.xxx:8888/disco/UUID -H 'Accept: text/occi' -H "X-Tenant-Name: $OS_TENANT_NAME" -H "X-User-Name: $OS_USERNAME" -H "X-Password: $OS_PASSWORD" -H "X-Region-Name: $OS_REGION_NAME"
    ```
 
    Note: if the cluster hasn't been fully created by OpenStack yet, this command will return an error. Just try it again after a short time.
    
    Note 2: Don't forget to replace the UUID field with the actual ID returned by DISCO in the command before.
    
-   As soon as the cluster creation has been finished on OpenStack's side, this command will return the IP address of the cluster's master node. It is in the 'externalIP' field.
+   As soon as the cluster creation has been finished on OpenStack's side, this command will return the IP address of the cluster's master node. It is in the 'external_ip' field. You will notice a few more output values among the given parameters. These are the following:
+   
+   ssh_key_name - this is the name of the newly created SSH keypair which will serve you as access key if you want to connect to the master node over SSH; the name is actually a redundant information, but for completeness' sake, it has been provided
+   ssh_public_key - this is the SSH public key of the keypair which has been created; neither this is of importance for you, but again, it has been provided for completeness' purposes
+   ssh_private_key - this is the important information: with the private key, you'll be able to connect to the master node over SSH!
    
 5. As soon as you have the IP of the master node, you can login over SSH:
 
    ```
-   ssh ubuntu@externalIP
+   ssh -i path/you/the/created/private.key ubuntu@externalIP
    ```
    
+   <todo> from here on
    Because the deployment on OpenStack is just a part of the cluster provisioning, your cluster most likely isn't ready yet for big data processing. But as soon as you have logged in, you can check the deployment status:
    
    ```
