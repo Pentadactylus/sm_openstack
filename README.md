@@ -41,7 +41,7 @@ But before we get to that point, let's install DISCO backend. This short guide w
     
 3. Let's install the SDK now:
     
-    ```
+    ```
     git clone https://github.com/icclab/hurtle_cc_sdk.git
     cd hurtle_cc_sdk
     sudo python setup.py install
@@ -56,8 +56,9 @@ But before we get to that point, let's install DISCO backend. This short guide w
     ```
     
 4. Before you can start DISCO, you need to make a couple of changes in the sm.cfg configuration file within the etc subdirectory of DISCO. These values are:
+
     - manifest: the path to the file service_manifest.json which is in the sm/managers/data subfolder of DISCO but could be at any other location.
-    - design_uri: Keystone's public endpoint in OpenStack.
+    - design_uri: Keystone's public endpoint in OpenStack. (listed as "Identity")
     - framework_directory: the path of the directory under ./sm/managers/data which is containing all the components that can be installed through DISCO.
 
 5. As soon as these changes are made, you can start DISCO with the command
@@ -80,7 +81,7 @@ In order to have a distributed computing cluster set up, you will need to issue 
     
     The three variables $OS_USERNAME, $OS_PASSWORD and $OS_TENANT_NAME are the same that you can download within the openrc.sh file from OpenStack. How that is done? Just go back to Horizon -> Compute -> Access & Security -> API Access. Here, you can download this access file.
     
-    But now back to the command from before: it will list all the registered services with the possible parametrs. For DISCO, this is the service haas.
+    But now back to the command from before: it will list all the registered services with the possible parametrs. For DISCO, this is the service "disco".
     
 2. With the following command, a cluster can be created:
 
@@ -120,22 +121,24 @@ In order to have a distributed computing cluster set up, you will need to issue 
 5. As soon as you have the IP of the master node, you can login over SSH:
 
    ```
-   ssh -i path/you/the/created/private.key ubuntu@externalIP
+   ssh -i path/you/the/created/private.key ubuntu@external_ip
    ```
    
-   <todo> from here on
-   Because the deployment on OpenStack is just a part of the cluster provisioning, your cluster most likely isn't ready yet for big data processing. But as soon as you have logged in, you can check the deployment status:
+   Because the deployment on OpenStack is just a part of the cluster provisioning, your cluster most likely isn't ready yet for big data processing - the actual software has to be installed. (Which of course is being done automatically)
+   But as soon as you have logged in, you can check the deployment status:
    
    ```
-   tail -f /home/ubuntu/deployment.log
+   tail -f /home/ubuntu/webserver/deployment.log
    ```
    
    As soon as the deployment has finished, it will tell so within the deployment.log file.
+   
+   You can actually access the whole logging status directory over a webserver on port 8084. (http://external_ip:8084) Here, you have even more information such as the entire terminal output during the deployment.
 
 6. If you would like to delete the cluster again, the following command will help you
 
     ```
-    curl -v -X DELETE http://xxx.xxx.xxx.xxx:8888/haas/UUID -H 'Category: haas; scheme="http://schemas.cloudcomplab.ch/occi/sm#"; class="kind";' -H 'content-type: text/occi' -H "X-User-Name: $OS_USERNAME" -H "X-Password: $OS_PASSWORD" -H "X-Tenant-Name: $OS_TENANT_NAME" -H "X-Region-Name: $OS_REGION_NAME"
+    curl -v -X DELETE http://127.0.0.1:8888/disco/$UUID -H 'Category: disco; scheme="http://schemas.cloudcomplab.ch/occi/sm#"; class="kind";' -H 'Content-type: text/occi' -H 'X-Tenant-Name: $OS_TENANT_NAME' -H 'X-Region-Name: $OS_REGION_NAME' -H 'X-User-Name: $OS_USERNAME' -H 'X-Password: $OS_PASSWORD' -H "X-Auth-Token: $TOKEN"
     ```
 
 7. After this last step, you can check with the command at a previous step that the cluster is not registered within DISCO anymore and the resources are freed. You can also double check that information on OpenStack Horizon. (Orchestration -> Stacks)
