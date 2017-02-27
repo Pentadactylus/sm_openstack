@@ -1,5 +1,7 @@
 # DISCO
 
+<a href="https://blog.zhaw.ch/icclab/files/2017/02/disco_architecture.png" target="_blank"><img src="https://blog.zhaw.ch/icclab/files/2017/02/disco_architecture.png" alt="Architecture" width="620"></img></a>
+
 ## Introduction
 
 DISCO stands for DIStributed COmputing. It provides the user with the ability to deploy a distributed computing cluster in as short a time as imaginable. Not only will it setup the whole virtual computing cluster but it will also install the desired distributed computing frameworks on it. Then, it will guide you through the entire lifecycle of the cluster until its disposal, which is also maintained by DISCO. You will be amazed by how much work DISCO is taking care of - and how intuitively it handles your requests.
@@ -86,11 +88,29 @@ In order to have a distributed computing cluster set up, you will need to issue 
 2. With the following command, a cluster can be created:
 
    ```
-   curl -v -X POST http://127.0.0.1:8888/disco/ -H 'Category: disco; scheme="http://schemas.cloudcomplab.ch/occi/sm#"; class="kind";' -H 'Content-type: text/occi' -H 'X-Tenant-Name: $OS_TENANT_NAME' -H 'X-Region-Name: $OS_REGION_NAME' -H 'X-User-Name: $OS_USERNAME' -H 'X-Password: $OS_PASSWORD' -H 'X-OCCI-Attribute: icclab.disco.components.heat.networkname="<name of the network to be created for the cluster>",icclab.disco.components.heat.externalnetworkname="<name of the external network>",icclab.disco.components.heat.masterimage="<ID of master image>",icclab.disco.components.heat.slaveimage="<ID of slave image>",icclab.disco.components.heat.masterflavor="<ID of master's flavor>",icclab.disco.components.heat.slaveflavor="<ID of slave's flavor>",icclab.disco.components.heat.slavecount="<amount of slaves to be deployed>",icclab.disco.hurtle.username="$OS_USERNAME",icclab.disco.hurtle.password="$OS_PASSWORD",icclab.disco.hurtle.region="$OS_REGION_NAME",icclab.disco.dependencies.inject="<components to deploy as a Python dictionary>"' -H "X-Auth-Token: $TOKEN"
+   curl -v -X POST http://127.0.0.1:8888/disco/ \
+   -H 'Category: disco; scheme="http://schemas.cloudcomplab.ch/occi/sm#"; class="kind";' \
+   -H 'Content-type: text/occi' \
+   -H 'X-Tenant-Name: $OS_TENANT_NAME' \
+   -H 'X-Region-Name: $OS_REGION_NAME' \
+   -H 'X-User-Name: $OS_USERNAME' \
+   -H 'X-Password: $OS_PASSWORD' \
+   -H "X-Auth-Token: $TOKEN" \
+   -H 'X-OCCI-Attribute: '\
+      'icclab.disco.components.heat.networkname="<name of the network to be created for the cluster>",'\
+      'icclab.disco.components.heat.externalnetworkname="<name of the external network>",'\
+      'icclab.disco.components.heat.masterimage="<ID of master image>",'\
+      'icclab.disco.components.heat.slaveimage="<ID of slave image>",'\
+      'icclab.disco.components.heat.masterflavor="<ID of master's flavor>",'\
+      'icclab.disco.components.heat.slaveflavor="<ID of slave's flavor>",'\
+      'icclab.disco.components.heat.slavecount="<amount of slaves to be deployed>",'\
+      'icclab.disco.deployer.username="$OS_USERNAME",'\
+      'icclab.disco.deployer.password="$OS_PASSWORD",'\
+      'icclab.disco.deployer.region="$OS_REGION_NAME",'\
+      'icclab.disco.dependencies.inject="<components to deploy as a Python dictionary>"'
    ```
 
-   There is one very long header, X-OCCI-Attribute, which contains all the parameters for the cluster setup. These are the following:
-   <todo>
+   There is one very long header, X-OCCI-Attribute, which contains all the parameters for the cluster setup. Each parameter starts with the string "icclab.disco.". A short description of each parameter is provided in the command above.
    
    A successful deployment will be acknowledged with an 'OK' and a UUID which identifies the created cluster within DISCO. It is within the location field of the response. Remember this because it is the address which you will send the following requests to.
 
@@ -142,3 +162,29 @@ In order to have a distributed computing cluster set up, you will need to issue 
     ```
 
 7. After this last step, you can check with the command at a previous step that the cluster is not registered within DISCO anymore and the resources are freed. You can also double check that information on OpenStack Horizon. (Orchestration -> Stacks)
+
+### Documentation
+Comprehensive API reference and developer's guides, as well as troubleshooting pages are available in the Wiki section.
+
+### Communication
+  * Email: icclab-disco[at]dornbirn[dot]zhaw[dot]ch
+  * Website: <a href="http://icclab.github.io/disco" target="_blank">icclab.github.io/disco</a>
+  * Blog: <a href="http://blog.zhaw.ch/icclab" target="_blank">http://blog.zhaw.ch/icclab</a>
+  * Tweet us @<a href="https://twitter.com/disco_framework" target="_blank">DISCO_framework</a>
+   
+### Developed @
+<img src="https://blog.zhaw.ch/icclab/files/2016/03/cropped-service_engineering_logo_zhawblue_banner.jpg" alt="ICC Lab" height="180" width="620"></img>
+
+### License
+ 
+      Licensed under the Apache License, Version 2.0 (the "License"); you may
+      not use this file except in compliance with the License. You may obtain
+      a copy of the License at
+ 
+           http://www.apache.org/licenses/LICENSE-2.0
+ 
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+      WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+      License for the specific language governing permissions and limitations
+      under the License.
