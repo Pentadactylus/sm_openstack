@@ -1,6 +1,8 @@
+<a href="http://icclab.github.io/disco" target="_blank"><img align="middle" src="https://blog.zhaw.ch/icclab/files/2017/02/disco_logo.jpg" width="400" /></a>
+
 # DISCO
 
-<a href="https://blog.zhaw.ch/icclab/files/2017/02/disco_architecture.png" target="_blank"><img src="https://blog.zhaw.ch/icclab/files/2017/02/disco_architecture.png" alt="Architecture" width="620"></img></a>
+<a href="https://blog.zhaw.ch/icclab/files/2017/02/disco_architecture.png" target="_blank"><img src="https://blog.zhaw.ch/icclab/files/2017/02/disco_architecture.png" alt="Architecture" width="620" /></a>
 
 ## Introduction
 
