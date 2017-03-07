@@ -10,7 +10,7 @@ DISCO stands for DIStributed COmputing. It provides the user with the ability to
 
 ## Running DISCO backend
 
-In the following section, I will explain how to configure and use the server part of DISCO, taking care of the user requests and forwarding the required commands to the cloud computing software.
+In the following section, I will explain how to configure and use the server part of DISCO, taking care of the user requests and forwarding the required commands to the cloud computing software. Keep in mind: the description here was written on an Ubuntu system and the commands might be different on your system if you are not using Ubuntu.
 
 ### Overview over the system
 
