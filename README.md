@@ -45,6 +45,7 @@ But before we get to that point, let's install DISCO backend. This short guide w
 3. Let's install the SDK now:
     
     ```
+    cd
     git clone https://github.com/icclab/hurtle_cc_sdk.git
     cd hurtle_cc_sdk
     sudo python setup.py install
@@ -53,6 +54,7 @@ But before we get to that point, let's install DISCO backend. This short guide w
 4. At this point, DISCO can be installed.
 
     ```
+    cd
     git clone https://github.com/icclab/disco.git
     cd disco
     sudo python setup.py install
