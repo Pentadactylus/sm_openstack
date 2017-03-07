@@ -113,7 +113,7 @@ In order to have a distributed computing cluster set up, you will need to issue 
       'icclab.disco.dependencies.inject="<components to deploy as a Python dictionary>"'
    ```
 
-   There is one very long header, X-OCCI-Attribute, which contains all the parameters for the cluster setup. Each parameter starts with the string "icclab.disco.". A short description of each parameter is provided in the command above.
+   There is one very long header, X-OCCI-Attribute, which contains all the parameters for the cluster setup. Each parameter starts with the string "icclab.disco.". A short description of each parameter is provided in the command above. A more extensive description can be found in the wiki.
    
    A successful deployment will be acknowledged with an 'OK' and a UUID which identifies the created cluster within DISCO. It is within the location field of the response. Remember this because it is the address which you will send the following requests to.
 
