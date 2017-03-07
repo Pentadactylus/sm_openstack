@@ -36,12 +36,10 @@ But before we get to that point, let's install DISCO backend. This short guide w
     sudo apt-get install -y git python-pip libffi-dev libcurl4-openssl-dev python-dev python-lxml
     ```
 
-2. Now, an SDK has to be installed which provides DISCO with some important commands. In order to install this SDK, two Python packages have to be upgraded:
+2. Now, an SDK has to be installed which provides DISCO with some important commands. In order to install this SDK, some packages might have to be upgraded:
 
     ```
-    sudo pip install requests --upgrade
-    sudo pip install setuptools --upgrade
-    sudo pip install cliff --upgrade
+    sudo pip install --upgrade <package name>
     ```
     
 3. Let's install the SDK now:
