@@ -41,6 +41,7 @@ But before we get to that point, let's install DISCO backend. This short guide w
     ```
     sudo pip install requests --upgrade
     sudo pip install setuptools --upgrade
+    sudo pip install cliff --upgrade
     ```
     
 3. Let's install the SDK now:
